@@ -495,7 +495,16 @@ void Application::onPulseAudioConnected()
     }
     else
         qDebug() << "no PulseAudio sink named sink.primary found!";
-
+    //Failback for Xperia 10 ii
+    d->pulseAudioSink = d->pulseAudioConnection->sinkByName("sink.primary_output");
+    if (!d->pulseAudioSink.isNull()){
+        qDebug() << "PulseAudio failback sink named sink.primary_output found!";
+        connect(d->pulseAudioSink.data(), SIGNAL(activePortChanged(QString)),
+                 this, SLOT(onPulseAudioSinkActivePortChanged(QString)));
+    }else{
+        qDebug() << "no PulseAudio sink named sink.primary_output found!";
+    }
+    //End Failback
     connect(d->pulseAudioConnection.data(), SIGNAL(sourceAdded(QSharedPointer<QtPulseAudioSource>)),
             this, SLOT(onPulseAudioSourceAdded(QSharedPointer<QtPulseAudioSource>)));
 
